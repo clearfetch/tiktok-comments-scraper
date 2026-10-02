@@ -37,6 +37,8 @@ Every row has the same columns, so exports to CSV, Excel or Google Sheets stay t
 | `maxCommentsPerVideo` | integer | `100` | Top-level comments per video. `0` means all of them. |
 | `includeReplies` | boolean | `false` | Also collect replies, each as its own row. |
 | `maxRepliesPerComment` | integer | `20` | Replies per comment when replies are on. `0` means all. |
+| `onlyNew` | boolean | `false` | For scheduled runs: write and charge only comments posted since the newest one an earlier run delivered for the same video. |
+| `stateStoreName` | string | `tiktok-comments-scraper-state` | The key-value store that remembers what earlier runs delivered, for `onlyNew`. One name per schedule. |
 | `includeRaw` | boolean | `false` | Add TikTok's untouched comment object as `raw`. |
 | `maxConcurrency` | integer | `3` | Videos worked on in parallel. |
 | `timeoutSecs` | integer | `30` | Per-request timeout. Slow requests are retried. |
@@ -90,6 +92,8 @@ A video that cannot be read comes back as one row with `ok: false` and a plain r
   duplicates are never charged (see the FAQ).
 - Set a maximum cost on the run and it stops cleanly when it gets there.
 
+Paid Apify plans pay less: 10% off on Bronze, 20% on Silver and 30% on Gold and higher tiers.
+
 ## Use cases
 
 - **Brand and campaign monitoring**: what people say under your videos, your competitors' and your creators'.
@@ -137,6 +141,16 @@ TikTok returned were repeats. This Actor drops them before they reach your datas
 **Do I need a proxy?** No. TikTok serves comments to Apify's own servers. The proxy option is there for very large
 volumes, if you start seeing rate-limit errors.
 
+**Can I monitor a video and get only the new comments?** Yes. Schedule the Actor with `onlyNew` on: the first run
+returns everything, and each later run writes and charges only comments posted after the newest one already
+delivered for that video. TikTok orders comments by popularity rather than date, so a new comment can sit anywhere
+in the list; set the maximum per video to `0` (all) or a high number on monitoring runs so it is found.
+
+**How large a video can one run handle?** Measured on Apify's default settings: 9,469 comments in 89 seconds,
+about 100 a second, so 20,000 comments take about four minutes. If a video is too large for the run's time limit,
+the run stops a minute before it and ends as succeeded with everything read so far; raise the run timeout for the
+very largest videos.
+
 **Can it find videos by hashtag, keyword or profile?** No. It takes video links. If you already have a list of
 videos from another tool or a spreadsheet, paste it in.
 
@@ -147,8 +161,18 @@ the images you need to keep.
 cookies. Comments contain usernames, which are personal data under laws such as the GDPR, so you are responsible
 for having a lawful reason to process them and for storing them appropriately.
 
+## More tools from clearfetch
+
+- [TikTok Scraper](https://apify.com/clearfetch/tiktok-scraper): hashtags, profiles, sounds and video stats in one Actor
+- [TikTok Profile Scraper](https://apify.com/clearfetch/tiktok-profile-scraper): followers, likes and the latest videos of any account
+- [TikTok Video Scraper](https://apify.com/clearfetch/tiktok-video-scraper): full stats for any video link
+- [Google Trends Scraper](https://apify.com/clearfetch/google-trends-scraper): interest over time, by region and related queries, plus today's trending searches
+
 ## Changelog
 
+- **1.1.0** (2026-10-02) — `onlyNew` for scheduled monitoring; comments are written a page at a time, about eight
+  times faster on large videos (9,469 comments in 89 s, where 10,003 took 751 s); a run stops cleanly before its
+  time limit instead of timing out.
 - **1.0.0** (2026-09) — first release: comments and replies by video link or id, share-link resolution, reply
   threading, creator pin and like flags, tagged products, purchase intent, image comments, duplicate removal,
   plain-language reasons for videos that cannot be read.
