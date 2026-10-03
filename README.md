@@ -1,7 +1,5 @@
 # TikTok Comments Scraper - Comments & Replies from Any Video
 
-**Run it on Apify: [apify.com/clearfetch/tiktok-comments-scraper](https://apify.com/clearfetch/tiktok-comments-scraper)**
-
 Paste TikTok video links and get every comment as a clean row: the text, likes, when it was posted, who wrote it,
 the language, whether the creator pinned or liked it, and, if you want them, the full reply threads.
 **$0.40 per 1,000 comments.** No login, no cookies, no proxy.
@@ -93,6 +91,8 @@ A video that cannot be read comes back as one row with `ok: false` and a plain r
 - Set a maximum cost on the run and it stops cleanly when it gets there.
 
 Paid Apify plans pay less: 10% off on Bronze, 20% on Silver and 30% on Gold and higher tiers.
+
+Apify also charges a run-start fee of $0.00005 per started GB of allocated memory (minimum one event), including runs that produce no chargeable results.
 
 ## Use cases
 
